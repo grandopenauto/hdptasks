@@ -1,6 +1,6 @@
 (() => {
   const CONFIG = {
-    enabled: false,
+    enabled: true,
     paymentLinks: {
       "competitor-research": "https://buy.stripe.com/28E9AU3E20gm4ficpYcs80b"
     }
@@ -10,7 +10,7 @@
     const url = CONFIG.paymentLinks[taskSlug];
     if (!CONFIG.enabled || !url) {
       const status = document.querySelector("[data-checkout-status]");
-      if (status) status.textContent = "Secure checkout is in final activation. The $49 task is configured, but ordering remains gated until payment verification is fully online.";
+      if (status) status.textContent = "Secure checkout is temporarily unavailable. Please try again shortly.";
       return;
     }
     button.setAttribute("aria-disabled", "true");
