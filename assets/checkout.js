@@ -1,38 +1,21 @@
 (() => {
   const CONFIG = {
     enabled: false,
-    checkoutEndpoint: "",
-    intakeBase: "/intake/",
-    successPath: "/order-success/",
-    cancelPath: "/order-cancelled/"
+    paymentLinks: {
+      "competitor-research": "https://buy.stripe.com/28E9AU3E20gm4ficpYcs80b"
+    }
   };
 
-  async function startCheckout(taskSlug, button) {
-    if (!CONFIG.enabled || !CONFIG.checkoutEndpoint) {
-      window.location.href = `/intake/${taskSlug}/?preview=1`;
+  function startCheckout(taskSlug, button) {
+    const url = CONFIG.paymentLinks[taskSlug];
+    if (!CONFIG.enabled || !url) {
+      const status = document.querySelector("[data-checkout-status]");
+      if (status) status.textContent = "Secure checkout is in final activation. The $49 task is configured, but ordering remains gated until payment verification is fully online.";
       return;
     }
-
-    const original = button.textContent;
-    button.disabled = true;
-    button.textContent = "Opening secure checkout…";
-
-    try {
-      const response = await fetch(CONFIG.checkoutEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task_slug: taskSlug })
-      });
-      if (!response.ok) throw new Error("Checkout request failed");
-      const payload = await response.json();
-      if (!payload.checkout_url) throw new Error("Missing checkout URL");
-      window.location.href = payload.checkout_url;
-    } catch (error) {
-      console.error(error);
-      button.disabled = false;
-      button.textContent = original;
-      alert("Checkout is not available yet. Please try again later.");
-    }
+    button.setAttribute("aria-disabled", "true");
+    button.textContent = "Opening secure Stripe checkout…";
+    window.location.href = url;
   }
 
   document.addEventListener("click", (event) => {
